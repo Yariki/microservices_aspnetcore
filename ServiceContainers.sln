@@ -11,6 +11,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Web", "Web", "{3CBC39CA-071
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProductCatalogApi", "src\Services\ProductCatalogApi\ProductCatalogApi.csproj", "{8211AD4C-1C4A-401F-B576-C552F35678D3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "src\Web\Client\Client.csproj", "{020145CF-0588-4CB2-B445-374B3BBD8714}"
+EndProject
+
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2A55A1C3-C967-4B44-A77A-F48B56E29B97}"
 	ProjectSection(SolutionItems) = preProject
 		docker-compose-dev.yml = docker-compose-dev.yml
@@ -27,14 +30,16 @@ Global
 		{8211AD4C-1C4A-401F-B576-C552F35678D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8211AD4C-1C4A-401F-B576-C552F35678D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8211AD4C-1C4A-401F-B576-C552F35678D3}.Release|Any CPU.Build.0 = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
+		{020145CF-0588-4CB2-B445-374B3BBD8714}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{020145CF-0588-4CB2-B445-374B3BBD8714}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{020145CF-0588-4CB2-B445-374B3BBD8714}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{020145CF-0588-4CB2-B445-374B3BBD8714}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{F28D2F85-8310-494E-8213-0A5C69B6675C} = {C26AA558-B65E-4018-B5B5-08A56E9F16F5}
 		{3CBC39CA-0711-4B5B-9C22-311EA4F9AB9F} = {C26AA558-B65E-4018-B5B5-08A56E9F16F5}
 		{8211AD4C-1C4A-401F-B576-C552F35678D3} = {F28D2F85-8310-494E-8213-0A5C69B6675C}
+		{020145CF-0588-4CB2-B445-374B3BBD8714} = {3CBC39CA-0711-4B5B-9C22-311EA4F9AB9F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EE526EC8-8A58-497F-89F6-1CAB68266D33}
