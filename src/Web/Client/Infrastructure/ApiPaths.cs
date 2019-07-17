@@ -31,12 +31,12 @@ namespace Client.Infrastructure
             }
             public static string GetAllBrands(string baseUri)
             {
-                return $"{baseUri}catalogBrands";
+                return $"{baseUri}brands";
             }
 
             public static string GetAllTypes(string baseUri)
             {
-                return $"{baseUri}catalogTypes";
+                return $"{baseUri}types";
             }
         }
 
