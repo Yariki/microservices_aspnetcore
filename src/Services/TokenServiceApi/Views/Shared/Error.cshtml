@@ -1,4 +1,4 @@
-﻿@model ErrorViewModel
+﻿@model IdentityServer4.Quickstart.UI.ErrorViewModel
 @{
     ViewData["Title"] = "Error";
 }
@@ -6,12 +6,17 @@
 <h1 class="text-danger">Error.</h1>
 <h2 class="text-danger">An error occurred while processing your request.</h2>
 
-@if (Model.ShowRequestId)
-{
-    <p>
-        <strong>Request ID:</strong> <code>@Model.RequestId</code>
-    </p>
-}
+<p>
+    <strong>Request ID:</strong> <code>@Model.Error.RequestId</code>
+</p>
+<p>
+    <strong>Error:</strong> <code>@Model.Error.Error</code>
+</p>
+<p>
+    <strong>Description:</strong> <code>@Model.Error.ErrorDescription</code>
+</p>
+
+
 
 <h3>Development Mode</h3>
 <p>
