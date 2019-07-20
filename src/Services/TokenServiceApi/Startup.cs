@@ -16,18 +16,33 @@ namespace TokenServiceApi
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IHostingEnvironment env)
         {
             Configuration = configuration;
+            CurrentEnvironment = env;
         }
 
+        public IHostingEnvironment CurrentEnvironment { get; }
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
+            var connectionString = Configuration["ConnectionString"];
+
+            if (CurrentEnvironment.IsProduction())
+            {
+                var server = Configuration["DatabaseServer"];
+                var database = Configuration["DatabaseName"];
+                var user = Configuration["DatabaseUser"];
+                var password = Configuration["DatabaseNamePassword"];
+                connectionString =
+                    $"Server={server};Database={database};User Id={user};Password={password};MultipleActiveResultSets=true";
+            }
+
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer(connectionString));
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
