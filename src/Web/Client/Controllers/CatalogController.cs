@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Client.Models;
 using Client.Services;
 using Client.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Client.Controllers
 {
@@ -45,6 +47,7 @@ namespace Client.Controllers
             return View(vm);
         }
 
+        [Authorize]
         public IActionResult About()
         {
             ViewData["Message"] = "Your application description page.";

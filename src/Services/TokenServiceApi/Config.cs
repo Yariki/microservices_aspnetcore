@@ -10,7 +10,7 @@ namespace TokenServiceApi
         public static Dictionary<string, string> GetUrls(IConfiguration configuration)
         {
             var urls = new Dictionary<string,string>();
-            urls.Add("Mvc",configuration.GetValue<string>("Client"));
+            urls.Add("Mvc",configuration.GetValue<string>("MvcClient"));
             return urls;
         }
 
@@ -42,8 +42,8 @@ namespace TokenServiceApi
                     ClientId = "mvc",
                     ClientSecrets = new []{new Secret("secret".Sha256()) },
                     AllowedGrantTypes = GrantTypes.Hybrid,
-                    RedirectUris = {$"{clientUrls["Mvc"]}/signin-iodc"},
-                    PostLogoutRedirectUris = {$"{clientUrls["Mvc"]}/signout-callback-iodc"},
+                    RedirectUris = {$"{clientUrls["Mvc"]}/signin-oidc" },
+                    PostLogoutRedirectUris = {$"{clientUrls["Mvc"]}/signout-callback-oidc" },
                     AllowAccessTokensViaBrowser = false,
                     AllowOfflineAccess = true,
                     RequireConsent = false,

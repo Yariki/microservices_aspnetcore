@@ -35,7 +35,8 @@ namespace TokenServiceApi
                 }
                 catch (Exception e)
                 {
-                    
+                    var logger = services.GetRequiredService<ILogger<Program>>();
+                    logger.LogError(e, "An error occurred while seeding the AuthorizationServer database.");
                 }
             }
 
