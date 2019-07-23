@@ -1,6 +1,8 @@
+using System;
+
 namespace CartApi.Infrastructure.Exceptions
 {
-    public class CartDomainException
+    public class CartDomainException : Exception
     {
         
     }

@@ -13,7 +13,6 @@ namespace CartApi.Controllers
         private IRedisRepository _repository;
         private ILogger _logger;
 
-
         public CartController(IRedisRepository repository, ILoggerFactory factory)
         {
             _repository = repository;
