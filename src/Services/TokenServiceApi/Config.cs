@@ -11,6 +11,7 @@ namespace TokenServiceApi
         {
             var urls = new Dictionary<string,string>();
             urls.Add("Mvc",configuration.GetValue<string>("MvcClient"));
+            urls.Add("BasketApi", configuration.GetValue<string>("BasketApiClient"));
             return urls;
         }
 
@@ -54,6 +55,22 @@ namespace TokenServiceApi
                         IdentityServerConstants.StandardScopes.Profile,
                         IdentityServerConstants.StandardScopes.OfflineAccess,
                         "orders",
+                        "basket"
+                    }
+                },
+                new Client()
+                {
+                    ClientId = "basketswaggerui",
+                    ClientName = "Basket Swagger UI",
+                    
+                    AllowedGrantTypes = GrantTypes.Implicit,
+                    AllowAccessTokensViaBrowser = true,
+                    
+                    RedirectUris = {$"{clientUrls["BasketApi"]}/swagger/o2c.html" },
+                    PostLogoutRedirectUris = {$"{clientUrls["BasketApi"]}/swagger/" },
+                    
+                    AllowedScopes = new List<string>()
+                    {
                         "basket"
                     }
                 }

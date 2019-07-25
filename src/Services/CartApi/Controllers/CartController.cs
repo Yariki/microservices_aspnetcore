@@ -2,12 +2,14 @@
 using System.Reflection.Metadata;
 using System.Threading.Tasks;
 using CartApi.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace CartApi.Controllers
 {
     [Route("api/v1/[controller]")]
+    [Authorize]
     public class CartController : Controller
     {
         private IRedisRepository _repository;
