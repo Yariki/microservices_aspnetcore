@@ -14,19 +14,19 @@ namespace ProductCatalogApi.Data.Migraions
             if (!context.CatalogBrands.Any())
             {
                 context.CatalogBrands.AddRange(getPreconfiguredCatalogBrands());
-                await context.SaveChangesAsync();
+                await context.SaveChangesAsync().ConfigureAwait(true);
             }
 
             if (!context.CatalogTypes.Any())
             {
                 context.CatalogTypes.AddRange(getPreconfiguredCatalogTypes());
-                await context.SaveChangesAsync();
+                await context.SaveChangesAsync().ConfigureAwait(true);
             }
 
             if (!context.CatalogItems.Any())
             {
                 context.CatalogItems.AddRange(GetPreconfiguredItems());
-                await context.SaveChangesAsync();
+                await context.SaveChangesAsync().ConfigureAwait(true);
             }
         }
 
