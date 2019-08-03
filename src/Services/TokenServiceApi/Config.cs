@@ -1,12 +1,32 @@
 ﻿using System.Collections.Generic;
+using System.Security.Claims;
 using IdentityServer4;
 using IdentityServer4.Models;
+using IdentityServer4.Test;
 using Microsoft.Extensions.Configuration;
 
 namespace TokenServiceApi
 {
     public class Config
     {
+        public static List<TestUser> GetUsers()
+        {
+            return new List<TestUser>
+            {
+                new TestUser
+                {
+                    SubjectId = "1",
+                    Username = "admin",
+                    Password = "password",
+
+                    Claims = new []
+                    {
+                        new Claim("name", "Admin")
+                    }
+                }
+            };
+        }
+
         public static Dictionary<string, string> GetUrls(IConfiguration configuration)
         {
             var urls = new Dictionary<string,string>();
@@ -45,10 +65,7 @@ namespace TokenServiceApi
                     AllowedGrantTypes = GrantTypes.Hybrid,
                     RedirectUris = {$"{clientUrls["Mvc"]}/signin-oidc" },
                     PostLogoutRedirectUris = {$"{clientUrls["Mvc"]}/signout-callback-oidc" },
-                    AllowAccessTokensViaBrowser = false,
                     AllowOfflineAccess = true,
-                    RequireConsent = false,
-                    AlwaysIncludeUserClaimsInIdToken = true,
                     AllowedScopes = new List<string>()
                     {
                         IdentityServerConstants.StandardScopes.OpenId,
@@ -66,7 +83,7 @@ namespace TokenServiceApi
                     AllowedGrantTypes = GrantTypes.Implicit,
                     AllowAccessTokensViaBrowser = true,
                     
-                    RedirectUris = {$"{clientUrls["BasketApi"]}/swagger/o2c.html" },
+                    RedirectUris = {$"{clientUrls["BasketApi"]}/swagger/oauth2-redirect.html" },
                     PostLogoutRedirectUris = {$"{clientUrls["BasketApi"]}/swagger/" },
                     
                     AllowedScopes = new List<string>()

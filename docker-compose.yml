@@ -19,6 +19,13 @@ services:
         networks:
             - backend
 
+    basketdata:
+        image: redis
+        ports:
+            - "6733:6379"
+        networks:
+            - backend
+ 
     catalog:
         build:
             context: .\src\services\ProductCatalogApi
@@ -61,6 +68,7 @@ services:
             dockerfile: Dockerfile
         environment:
             - MvcClient=http://localhost:5200
+            - BasketApiClient=http://localhost:5500
             - DatabaseServer=mssqlserver
             - DatabaseName=CatalogDb
             - DatabaseUser=sa
@@ -73,3 +81,20 @@ services:
             - frontend
         depends_on: 
             - mssqlserver
+
+    cart:
+        image: cartimage
+        build:
+            context: .\src\Services\CartApi
+            dockerfile: Dockerfile
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Development
+        container_name: cartapi
+        ports:
+            - "5500:80"
+        networks:
+            - backend
+            - frontend
+        depends_on:
+            - basketdata
+            - tokenserver
