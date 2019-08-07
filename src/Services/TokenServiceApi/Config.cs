@@ -61,11 +61,11 @@ namespace TokenServiceApi
                 new Client()
                 {
                     ClientId = "mvc",
+                    ClientName = "MVC Client",
                     ClientSecrets = new []{new Secret("secret".Sha256()) },
                     AllowedGrantTypes = GrantTypes.Hybrid,
                     RedirectUris = {$"{clientUrls["Mvc"]}/signin-oidc" },
                     PostLogoutRedirectUris = {$"{clientUrls["Mvc"]}/signout-callback-oidc" },
-                    AllowOfflineAccess = true,
                     AllowedScopes = new List<string>()
                     {
                         IdentityServerConstants.StandardScopes.OpenId,
@@ -73,7 +73,8 @@ namespace TokenServiceApi
                         IdentityServerConstants.StandardScopes.OfflineAccess,
                         "orders",
                         "basket"
-                    }
+                    },
+                    AllowOfflineAccess = true
                 },
                 new Client()
                 {
@@ -83,8 +84,8 @@ namespace TokenServiceApi
                     AllowedGrantTypes = GrantTypes.Implicit,
                     AllowAccessTokensViaBrowser = true,
                     
-                    RedirectUris = {$"{clientUrls["BasketApi"]}/swagger/oauth2-redirect.html" },
-                    PostLogoutRedirectUris = {$"{clientUrls["BasketApi"]}/swagger/" },
+                    RedirectUris = {$"{clientUrls["BasketApi"]}/swagger/oauth2-redirect.html" }, // o2c.html   oauth2-redirect.html
+                    //PostLogoutRedirectUris = {$"{clientUrls["BasketApi"]}/swagger/" },
                     
                     AllowedScopes = new List<string>()
                     {

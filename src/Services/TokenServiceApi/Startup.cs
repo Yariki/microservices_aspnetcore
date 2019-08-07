@@ -3,14 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using IdentityServer4;
 using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Mappers;
+using IdentityServer4.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using TokenServiceApi.Data;
 using TokenServiceApi.Services;
 
@@ -45,7 +48,7 @@ namespace TokenServiceApi
 
             var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
 
-            services.AddIdentityServer()
+            services.AddIdentityServer(o => { o.IssuerUri = Configuration["IDENTITY_ISSUER"]; })
                 .AddTestUsers(Config.GetUsers())
                 .AddConfigurationStore(options =>
                 {
@@ -64,6 +67,24 @@ namespace TokenServiceApi
                     options.EnableTokenCleanup = true;
                 })
                 .AddDeveloperSigningCredential();
+                //.AddCorsPolicyService<InMemoryCorsPolicyService>();
+
+            services.AddAuthentication()
+                .AddOpenIdConnect("oidc","OpenID Connect",
+                    opt =>
+                    {
+                        opt.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
+                        opt.SignOutScheme = IdentityServerConstants.SignoutScheme;
+                        opt.SaveTokens = true;
+
+                        opt.Authority = "https://demo.identityserver.io/";
+                        opt.ClientId = "implicit";
+                        opt.TokenValidationParameters = new TokenValidationParameters()
+                        {
+                            NameClaimType =  "name",
+                            RoleClaimType = "role"
+                        };
+                    });
 
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();
@@ -88,6 +109,7 @@ namespace TokenServiceApi
                 app.UseExceptionHandler("/Home/Error");
             }
 
+            //app.UseCors(b => b.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod().AllowCredentials());
             app.UseStaticFiles();
             app.UseIdentityServer();
             app.UseMvcWithDefaultRoute();

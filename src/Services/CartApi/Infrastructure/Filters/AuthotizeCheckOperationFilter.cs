@@ -7,13 +7,12 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 namespace CartApi.Infrastructure.Filters
 {
     public class AuthotizeCheckOperationFilter : IOperationFilter
-    {
-        
-        
+    {   
         public void Apply(Operation operation, OperationFilterContext context)
         {
             var hasAthorize = context.ApiDescription.ControllerAttributes().OfType<AuthorizeAttribute>().Any() ||
                               context.ApiDescription.ActionAttributes().OfType<AuthorizeAttribute>().Any();
+
             if (hasAthorize)
             {
                 operation.Responses.Add("401",new Response(){Description = "Unauthorized"});

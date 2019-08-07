@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CartApi.Infrastructure.Filters;
 using CartApi.Model;
+using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -83,16 +84,16 @@ namespace CartApi
                     });
                     opt.AddSecurityDefinition("oauth2", new OAuth2Scheme()
                     {
-                        Type =  "oauth2",
+                        Type = "oauth2",
                         Flow = "implicit",
                         AuthorizationUrl = $"{Configuration.GetValue<string>("IdentityUrl")}/connect/authorize",
-                        TokenUrl = $"{Configuration.GetValue<string>("IdentityUrl")}/connect/token",
+                        
                         Scopes = new Dictionary<string, string>()
                         {
                             {"basket", "Basket Api"}
                         }
                     });
-                    
+
                     opt.OperationFilter<AuthotizeCheckOperationFilter>();
                 });
 
@@ -120,32 +121,26 @@ namespace CartApi
             app.UseStaticFiles();
 
             app.UseCors("CorsPolicy");
+            app.UseAuthentication();
             app.UseSwagger()
                 .UseSwaggerUI(c =>
                 {
                     c.SwaggerEndpoint($"/swagger/v1/swagger.json", "Basket.API V1");
-                    c.OAuthConfigObject = new OAuthConfigObject()
-                    {
-                        ClientId = "basketswaggerui"
-                    }; 
-                        
+                    c.OAuthClientId("basketswaggerui");
+                    c.OAuthAppName("Basket Swagger UI");
+
                 });
+
 
             app.UseMvcWithDefaultRoute();
 
         }
 
-
         private void ConfigureAuthService(IServiceCollection services)
         {
-            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
             var identityUrl = Configuration.GetValue<string>("IdentityUrl");
 
-            services.AddAuthentication(opt =>
-                    {
-                        opt.DefaultAuthenticateScheme =
-                            opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                    })
+            services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
                 .AddJwtBearer(
                     opt =>
                     {
@@ -154,6 +149,6 @@ namespace CartApi
                         opt.Audience = "basket";
                     });
         }
-        
+
     }
 }

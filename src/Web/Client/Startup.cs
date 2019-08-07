@@ -1,19 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.IdentityModel.Tokens.Jwt;
 using Client.Infrastructure;
 using Client.Services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Client
 {
@@ -29,15 +23,10 @@ namespace Client
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<CookiePolicyOptions>(options =>
-            {
-                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-                options.CheckConsentNeeded = context => true;
-                options.MinimumSameSitePolicy = SameSiteMode.None;
-            });
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
             services.Configure<AppSettings>(Configuration);
-            
+
             services.AddSingleton<IHttpClient, CustomHttpClient>();
             services.AddTransient<ICatalogService, CatalogService>();
 
@@ -46,36 +35,34 @@ namespace Client
             var identityUrl = Configuration.GetValue<string>("IdentityUrl");
             var callBackUrl = Configuration.GetValue<string>("CallBackUrl");
             services.AddAuthentication(options =>
-            {
-                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
-               // options.DefaultAuthenticateScheme = "Cookies";
-            })
-            .AddCookie()
-            .AddOpenIdConnect(options => {
-                options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                 
-                options.Authority = identityUrl.ToString();
-                options.SignedOutRedirectUri = callBackUrl.ToString();
-                options.ClientId ="mvc";
-                options.ClientSecret = "secret";
-                options.ResponseType =  "code id_token";
-                options.SaveTokens = true;
-                options.GetClaimsFromUserInfoEndpoint = true;
-                options.RequireHttpsMetadata = false;
-                options.Scope.Add("openid");
-                options.Scope.Add("profile");
-                options.Scope.Add("offline_access");
-                options.TokenValidationParameters = new TokenValidationParameters()
                 {
+                    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = "oidc";
+                })
+                .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddOpenIdConnect("oidc", options =>
+                {
+                    options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 
-                    NameClaimType = "name",
-                    RoleClaimType = "role"
-                };
+                    options.Authority = identityUrl.ToString();
+                    options.RequireHttpsMetadata = false;
+                    //options.SignedOutRedirectUri = callBackUrl.ToString();
 
+                    options.ClientId = "mvc";
+                    options.ClientSecret = "secret";
+                    options.ResponseType = "code id_token";
 
+                    options.SaveTokens = true;
+                    options.GetClaimsFromUserInfoEndpoint = true;
 
-            });
+                    options.Scope.Add("openid");
+                    options.Scope.Add("profile");
+                    options.Scope.Add("offline_access");
+                    options.Scope.Add("basket");
+                    options.Scope.Add("orders");
+
+                    options.ClaimActions.MapJsonKey("website", "website");
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -88,7 +75,6 @@ namespace Client
             else
             {
                 app.UseExceptionHandler("/Catalog/Error");
-                app.UseHsts();
             }
 
             app.UseStaticFiles();
@@ -97,11 +83,11 @@ namespace Client
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
-                    name: "default",
-                    template: "{controller=Catalog}/{action=Index}/{id?}");
+                    "default",
+                    "{controller=Catalog}/{action=Index}/{id?}");
                 routes.MapRoute(
-                    name: "defaultError",
-                    template: "{controller=Error}/{action=Error}");
+                    "defaultError",
+                    "{controller=Error}/{action=Error}");
             });
         }
     }
