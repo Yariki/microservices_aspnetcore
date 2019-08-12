@@ -1,6 +1,7 @@
-﻿@using Microsoft.AspNetCore.Identity
-@using ShoesOnContainers.Web.WebMvc.Services
-@using ShoesOnContainers.Web.WebMvc.Models
+﻿@using Client.Services
+@using Microsoft.AspNetCore.Identity
+@using Client.Services
+@using Client.Models
 
 @inject IIdentityService<ApplicationUser> UserManager
  @if (User.FindFirst(x => x.Type == "preferred_username") != null) {
