@@ -1,5 +1,6 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using Client.Infrastructure;
+using Client.Models;
 using Client.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -26,9 +27,11 @@ namespace Client
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
             services.Configure<AppSettings>(Configuration);
-
             services.AddSingleton<IHttpClient, CustomHttpClient>();
             services.AddTransient<ICatalogService, CatalogService>();
+
+            services.AddTransient<IIdentityService<ApplicationUser>, IdentityService>();
+            services.AddTransient<ICartService, CartService>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
