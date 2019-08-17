@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -45,6 +47,8 @@ namespace OrderApi
                 .AddApiExplorer();
 
             services.Configure<OrderSettings>(Configuration);
+
+            ConfigureAuthService(services);
 
             services.AddEntityFrameworkMySql()
                 .AddDbContext<OrdersContext>(opt => { opt.UseMySql(_connectionString,
@@ -119,5 +123,25 @@ namespace OrderApi
                     template: "{controller}/{action}");
             });
         }
+
+        private void ConfigureAuthService(IServiceCollection services)
+        {
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
+            var identityUrl = Configuration.GetValue<string>("IdentityUrl");
+
+            services.AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(options =>
+                {
+                    options.Authority = identityUrl;
+                    options.RequireHttpsMetadata = false;
+                    options.Audience = "order";
+                });
+        }
+
     }
 }
