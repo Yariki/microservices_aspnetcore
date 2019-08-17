@@ -6,11 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System.Diagnostics;
+using Client.Services;
 using Client.Models;
 using Client.Models.CartModels;
-using Client.Services;
 using Polly.CircuitBreaker;
-namespace Client.Controllers
+namespace WebMvc.Controllers
 {
     [Authorize]
     public class CartController : Controller

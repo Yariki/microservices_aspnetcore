@@ -27,6 +27,7 @@ namespace Client
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
             services.Configure<AppSettings>(Configuration);
+            services.AddHttpContextAccessor();
             services.AddSingleton<IHttpClient, CustomHttpClient>();
             services.AddTransient<ICatalogService, CatalogService>();
 
@@ -65,6 +66,7 @@ namespace Client
                     options.Scope.Add("orders");
 
                     options.ClaimActions.MapJsonKey("website", "website");
+
                 });
         }
 

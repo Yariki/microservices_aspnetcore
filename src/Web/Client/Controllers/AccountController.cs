@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Claims;
 using System.Diagnostics;
 
-namespace Client.Controllers
+namespace WebMvc.Controllers
 {
     [Authorize]
     public class AccountController : Controller
