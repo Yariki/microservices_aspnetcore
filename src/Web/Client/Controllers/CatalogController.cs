@@ -47,33 +47,7 @@ namespace WebMvc.Controllers
 
             return View(vm);
         }
-        //[Authorize]
-        //public async Task<IActionResult> About()
-        //{
-        //    ViewData["Message"] = "Your application description page.";
-        //    var user = User as ClaimsPrincipal;
-
-        //    var token = await HttpContext.GetTokenAsync("access_token");
-        //    var idToken = await HttpContext.GetTokenAsync("id_token");
-        //    foreach (var claim in user.Claims)
-        //    {
-        //        Debug.WriteLine($"Claim Type: {claim.Type} - Claim Value : {claim.Value}");
-        //    }
-
-        //    if (token != null)
-        //    {
-        //        ViewData["access_token"] = token;
-
-        //    }
-        //    if (idToken != null)
-        //    {
-
-        //        ViewData["id_token"] = idToken;
-        //    }
-
-        //    return View();
-        //}
-
+        
         [Authorize]
         public IActionResult About()
         {
