@@ -9,6 +9,8 @@ namespace Client
 
         public string CartUrl { get; set; }
 
+        public string OrderUrl { get; set; }
+
         public Logging Logging { get; set; }
     }
 

@@ -57,6 +57,7 @@ services:
             - MvcClient=http://localhost:5200
             - BasketApiClient=http://localhost:5500
             - IDENTITY_ISSUER=http://10.0.75.1:5000
+            - OrderApiClient=http://localhost:5600
             - DatabaseServer=mssqlserver
             - DatabaseName=TokenServiceDb
             - DatabaseUser=sa

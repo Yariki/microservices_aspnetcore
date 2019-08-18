@@ -33,6 +33,7 @@ namespace Client
 
             services.AddTransient<IIdentityService<ApplicationUser>, IdentityService>();
             services.AddTransient<ICartService, CartService>();
+            services.AddTransient<IOrderService, OrderService>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
@@ -63,7 +64,7 @@ namespace Client
                     options.Scope.Add("profile");
                     options.Scope.Add("offline_access");
                     options.Scope.Add("basket");
-                    options.Scope.Add("orders");
+                    options.Scope.Add("order");
 
                     options.ClaimActions.MapJsonKey("website", "website");
 

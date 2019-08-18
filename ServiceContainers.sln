@@ -15,17 +15,20 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Client", "src\Web\Client\Cl
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2A55A1C3-C967-4B44-A77A-F48B56E29B97}"
 	ProjectSection(SolutionItems) = preProject
+		.env = .env
 		docker-compose-dev.yml = docker-compose-dev.yml
 		docker-compose.CartApi.redis.yml = docker-compose.CartApi.redis.yml
 		docker-compose.CartApi.yml = docker-compose.CartApi.yml
+		docker-compose.OrderApi.yml = docker-compose.OrderApi.yml
 		docker-compose.yml = docker-compose.yml
+		secrets.env = secrets.env
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TokenServiceApi", "src\Services\TokenServiceApi\TokenServiceApi.csproj", "{6879E90D-29F0-46E3-8D72-6D5F51D01EA1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CartApi", "src\Services\CartApi\CartApi.csproj", "{7C5368CA-E236-4AF2-A9DC-B834FFDF4556}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderApi", "src\Services\OrderApi\OrderApi.csproj", "{BA733FD5-CCCC-4242-9DE9-D6D0FAC3929E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrderApi", "src\Services\OrderApi\OrderApi.csproj", "{BA733FD5-CCCC-4242-9DE9-D6D0FAC3929E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

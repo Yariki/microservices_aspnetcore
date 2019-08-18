@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -13,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MySql.Data.MySqlClient;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using OrderApi.Data;
@@ -49,6 +51,8 @@ namespace OrderApi
             services.Configure<OrderSettings>(Configuration);
 
             ConfigureAuthService(services);
+
+            DbInit(_connectionString);
 
             services.AddEntityFrameworkMySql()
                 .AddDbContext<OrdersContext>(opt => { opt.UseMySql(_connectionString,
@@ -141,6 +145,27 @@ namespace OrderApi
                     options.RequireHttpsMetadata = false;
                     options.Audience = "order";
                 });
+        }
+
+        private void DbInit(string connectionString)
+        {
+            var connection = new MySqlConnection(connectionString);
+            int retries = 1;
+            while (retries < 7)
+            {
+                try
+                {
+                    Console.WriteLine($"Connection to db. Trial: {retries}");
+                    connection.Open();
+                    connection.Close();
+                    break;
+                }
+                catch (MySqlException)
+                {
+                    Thread.Sleep((int)Math.Pow(2,retries) * 1000);
+                    retries++;
+                }
+            }
         }
 
     }

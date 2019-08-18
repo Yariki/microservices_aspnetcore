@@ -31,20 +31,6 @@ namespace WebMvc.Controllers
         }
         public    IActionResult  Index()
         {
-            //try
-            //{
-
-            //    var user = _identityService.Get(HttpContext.User);
-            //    var cart = await _cartService.GetCart(user);
-
-
-            //    return View();
-            //}
-            //catch (BrokenCircuitException)
-            //{
-            //    // Catch error when CartApi is in circuit-opened mode                 
-            //    HandleBrokenCircuitException();
-            //}
 
             return View();
         }
@@ -52,6 +38,11 @@ namespace WebMvc.Controllers
         [HttpPost]
         public async Task<IActionResult> Index(Dictionary<string, int> quantities, string action)
         {
+
+            if (action.IndexOf("Checkout") > -1)
+            {
+                return RedirectToAction("Create", "Order");
+            }
 
             try
             {
