@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Client.Models;
 using Client.Models.CartModels;
+using Client.Models.OrderModels;
 
 namespace Client.Services
 {
@@ -15,6 +16,8 @@ namespace Client.Services
         Task<Cart> SetQuantities(ApplicationUser user, Dictionary<string, int> quantities);
        // Order MapCartToOrder(Cart Cart);
         Task ClearCart(ApplicationUser user);
+
+        Order MapCartToOrder(Cart Cart);
 
     }
 }
