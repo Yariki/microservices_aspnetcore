@@ -52,20 +52,28 @@ namespace OrderApi
 
             ConfigureAuthService(services);
 
-            DbInit(_connectionString);
+            var connectionString = Configuration.GetValue<string>("ConnectionString");
 
-            services.AddEntityFrameworkMySql()
-                .AddDbContext<OrdersContext>(opt => { opt.UseMySql(_connectionString,
-                    mySqlOptionsAction: sqlOptions =>
-                                        {
-                                            sqlOptions.MigrationsAssembly(typeof(Startup)
-                                                .GetTypeInfo()
-                                                .Assembly
-                                                .GetName()
-                                                .Name);
-                                        });
-                }, 
-                    ServiceLifetime.Scoped);
+            var hostname = Environment.GetEnvironmentVariable("DatabaseServer");
+            var userName = Environment.GetEnvironmentVariable("DatabaseUser");
+            var password = Environment.GetEnvironmentVariable("DatabaseNamePassword");
+            var database = Environment.GetEnvironmentVariable("DatabaseName");
+
+            if (!string.IsNullOrEmpty(hostname) && !string.IsNullOrEmpty(userName) &&
+                !string.IsNullOrEmpty(password) && !string.IsNullOrEmpty(database))
+            {
+                connectionString = $"Server={hostname};Database={database};User ID={userName};Password={password};";
+            }
+
+            services.AddDbContext<OrdersContext>(options =>
+            {
+                options.UseSqlServer(connectionString,
+                                     sqlServerOptionsAction: sqlOptions =>
+                                     {
+                                         sqlOptions.MigrationsAssembly(typeof(Startup).GetTypeInfo().Assembly.GetName().Name);
+                                         sqlOptions.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
+                                     });
+             });
 
             services.AddSwaggerGen(options =>
             {

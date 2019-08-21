@@ -83,3 +83,22 @@ services:
         depends_on:
             - basketdata
             - tokenserver
+
+    order:
+        image: shoes/order
+        build: 
+            context: .\src\Services\OrderApi
+            dockerfile: Dockerfile
+        environment: 
+            - ASPNETCORE_ENVIRONMENT=Development 
+            - IdentityUrl=http://10.0.75.1:5000
+            - DatabaseServer=mssqlserver
+            - DatabaseUser=sa
+            - DatabaseNamePassword=8jkGh47hnDw89Haq8LN2
+            - DatabaseName=OrdersDb
+        container_name: orderapi
+        ports:
+            - "5600:80"
+        depends_on:
+            - mssqlserver
+            - tokenserver 
