@@ -73,28 +73,24 @@ namespace Client.Services
         public async Task<Cart> GetCart(ApplicationUser user)
         {
             var token = await GetUserTokenAsync();
-          //  string parse = JArray.Parse(token).ToString();
-            _logger.LogInformation(" We are in get basket and user id " + user.Id);
-            _logger.LogInformation(_remoteServiceBaseUrl);
 
             var getBasketUri = ApiPaths.Basket.GetBasket(_remoteServiceBaseUrl, user.Id);
-            _logger.LogInformation(getBasketUri);
-          //  getBasketUri = ApiPaths.Basket.GetBasket(_remoteServiceBaseUrl, user.Id);
             var dataString = await _apiClient.GetStringAsync(getBasketUri, token);
-            _logger.LogInformation(dataString);
-            // Use the ?? Null conditional operator to simplify the initialization of response
-            //var response = JsonConvert.DeserializeObject<Basket>(dataString) ??
-            //    new Basket()
-            //    {
-            //        BuyerId = user.Id
-            //    };
 
-            var response = JsonConvert.DeserializeObject<Cart>(dataString.ToString()) ??
-               new Cart()
-               {
-                   BuyerId = user.Id
-               };
-            return response;
+            try
+            {
+                var response = JsonConvert.DeserializeObject<Cart>(dataString.ToString()) ??
+                               new Cart()
+                               {
+                                   BuyerId = user.Id
+                               };
+                return response;
+            }
+            catch (JsonReaderException e)
+            {
+                _logger.Log(LogLevel.Error,e.Message,e.ToString());
+            }
+            return new Cart() { BuyerId = user.Id };
         }
 
         

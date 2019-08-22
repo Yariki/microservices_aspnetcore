@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Client.Models;
@@ -32,8 +33,14 @@ namespace WebMvc.Controllers
         {
             var user = _identitySvc.Get(HttpContext.User);
             var cart = await _cartSvc.GetCart(user);
-            var order = _cartSvc.MapCartToOrder(cart);
-            return View(order);
+            Order order;
+            if(cart != null)
+            { 
+                order = _cartSvc.MapCartToOrder(cart);
+                return View(order);
+            }
+
+            return View(new Order());
         }
 
         [HttpPost]
@@ -50,11 +57,21 @@ namespace WebMvc.Controllers
             order.UserName = user.Email;
             order.BuyerId = user.Id;
             order.OrderTotal = GetTotal(order.OrderItems);
-                
-            int orderId = await _orderSvc.CreateOrder(order);
 
-            await _cartSvc.ClearCart(user);
-            return RedirectToAction("Complete", new { id = orderId, userName = user.UserName });
+            try
+            {
+
+                int orderId = await _orderSvc.CreateOrder(order);
+
+                await _cartSvc.ClearCart(user);
+                return RedirectToAction("Complete", new { id = orderId, userName = user.UserName });
+
+            }
+            catch (Exception e)
+            {
+                _logger.Log(LogLevel.Error,e.Message,e);
+                return BadRequest(e);
+            }
         }
 
         public IActionResult Complete(int id, string userName)
