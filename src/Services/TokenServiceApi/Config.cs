@@ -61,11 +61,18 @@ namespace TokenServiceApi
             {
                 new Client()
                 {
+                    ClientId = "order",
+                    AllowedGrantTypes = GrantTypes.ClientCredentials,
+                    ClientSecrets =  new List<Secret>(){new Secret("secret".Sha256())},
+                    AllowedScopes = {"order"}
+                },
+                new Client()
+                {
                     ClientId = "mvc",
                     ClientName = "MVC Client",
                     ClientSecrets = new []{new Secret("secret".Sha256()) },
                     AllowedGrantTypes = GrantTypes.Hybrid,
-                    ClientUri = $"{clientUrls["Mvc"]}",
+                    //ClientUri = $"{clientUrls["Mvc"]}",
                     RedirectUris = {$"{clientUrls["Mvc"]}/signin-oidc" },
                     PostLogoutRedirectUris = {$"{clientUrls["Mvc"]}/signout-callback-oidc" },
                     AllowedScopes = new List<string>()

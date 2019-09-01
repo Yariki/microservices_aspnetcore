@@ -77,7 +77,7 @@ namespace Client.Infrastructure
 
             if (response.StatusCode == HttpStatusCode.InternalServerError)
             {
-                throw new HttpRequestException();
+                throw new HttpRequestException(await response.Content.ReadAsStringAsync());
             }
 
             return response;

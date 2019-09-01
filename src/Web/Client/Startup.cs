@@ -4,6 +4,7 @@ using Client.Models;
 using Client.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -24,6 +25,8 @@ namespace Client
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
             services.Configure<AppSettings>(Configuration);
@@ -35,19 +38,19 @@ namespace Client
             services.AddTransient<ICartService, CartService>();
             services.AddTransient<IOrderService, OrderService>();
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-
             var identityUrl = Configuration.GetValue<string>("IdentityUrl");
             var callBackUrl = Configuration.GetValue<string>("CallBackUrl");
             services.AddAuthentication(options =>
                 {
-                    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    options.DefaultScheme = "Cookies";
                     options.DefaultChallengeScheme = "oidc";
                 })
-                .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie("Cookies")
+                .AddCookie("oids")
                 .AddOpenIdConnect("oidc", options =>
                 {
-                    options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    options.SignInScheme = "Cookies";
+                    //options.SignOutScheme = "oidc";
 
                     options.Authority = identityUrl.ToString();
                     options.RequireHttpsMetadata = false;

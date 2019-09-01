@@ -31,8 +31,7 @@ namespace OrderApi.Controllers
         }
 
 
-        [Route("new")]
-        [HttpPost]
+        [HttpPost("new")]
         [ProducesResponseType((int)HttpStatusCode.Accepted)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> CreateOrder([FromBody] Order order)
@@ -58,8 +57,7 @@ namespace OrderApi.Controllers
             return item != null ? (IActionResult) Ok(item) : NotFound();
         }
 
-        [Route("")]
-        [HttpGet]
+        [HttpGet("")]
         [ProducesResponseType((int)HttpStatusCode.Accepted)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetOrders()

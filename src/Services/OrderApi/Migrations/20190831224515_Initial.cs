@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace OrderApi.Data.Migrations
+namespace OrderApi.Migrations
 {
     public partial class Initial : Migration
     {
@@ -13,7 +13,7 @@ namespace OrderApi.Data.Migrations
                 columns: table => new
                 {
                     OrderId = table.Column<int>(nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     FirstName = table.Column<string>(nullable: true),
                     LastName = table.Column<string>(nullable: true),
                     OrderDate = table.Column<DateTime>(nullable: false),
@@ -33,7 +33,7 @@ namespace OrderApi.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     ProductName = table.Column<string>(nullable: true),
                     PictureUrl = table.Column<string>(nullable: true),
                     UnitPrice = table.Column<decimal>(nullable: false),

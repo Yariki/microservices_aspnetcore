@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using Client.Infrastructure;
 using Client.Models.OrderModels;
@@ -21,7 +22,7 @@ namespace Client.Services
         private readonly ILogger _logger;
         public OrderService(IOptionsSnapshot<AppSettings> settings, IHttpContextAccessor httpContextAccesor, IHttpClient httpClient, ILoggerFactory logger)
         {
-            _remoteServiceBaseUrl = $"{settings.Value.OrderUrl}/api/v1/orders";
+            _remoteServiceBaseUrl = $"{settings.Value.OrderUrl}/api/orders";
             _settings = settings;
             _httpContextAccesor = httpContextAccesor;
             _apiClient = httpClient;
@@ -61,17 +62,16 @@ namespace Client.Services
 
 
             var response = await _apiClient.PostAsync(addNewOrderUri, order, token);
-            if (response.StatusCode == System.Net.HttpStatusCode.InternalServerError)
+            if (response.StatusCode == System.Net.HttpStatusCode.InternalServerError || response.StatusCode == HttpStatusCode.NotFound)
             {
                 throw new Exception("Error creating order, try later.");
             }
 
             // response.EnsureSuccessStatusCode();
-            var jsonString = response.Content.ReadAsStringAsync();
+            var jsonString = await response.Content.ReadAsStringAsync();
 
-            jsonString.Wait();
             _logger.LogDebug("response " + jsonString);
-            dynamic data = JObject.Parse(jsonString.Result);
+            dynamic data = JObject.Parse(jsonString);
             string value = data.orderId;
             return Convert.ToInt32(value);
         }

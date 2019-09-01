@@ -37,7 +37,8 @@ namespace CartApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc(opt => { opt.Filters.Add(typeof(HttpsGlobalExceptionFilter)); }
-                ).SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+                )
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             services.Configure<CartSettings>(Configuration);
 
@@ -140,8 +141,8 @@ namespace CartApi
         {
             var identityUrl = Configuration.GetValue<string>("IdentityUrl");
 
-            services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
-                .AddJwtBearer(
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme,
                     opt =>
                     {
                         opt.Authority = identityUrl;

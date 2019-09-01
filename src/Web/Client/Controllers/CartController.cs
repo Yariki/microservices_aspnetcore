@@ -1,48 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using System.Diagnostics;
-using Client.Services;
+using Client.Infrastructure;
 using Client.Models;
 using Client.Models.CartModels;
+using Client.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Polly.CircuitBreaker;
+
 namespace WebMvc.Controllers
 {
     [Authorize]
     public class CartController : Controller
     {
-        
         private readonly ICartService _cartService;
         private readonly ICatalogService _catalogService;
         private readonly IIdentityService<ApplicationUser> _identityService;
 
-        public CartController(IIdentityService<ApplicationUser> identityService, ICartService cartService, ICatalogService catalogService)
+        public CartController(IIdentityService<ApplicationUser> identityService, ICartService cartService,
+            ICatalogService catalogService)
         {
             _identityService = identityService;
             _cartService = cartService;
             _catalogService = catalogService;
-
-
-
         }
-        public    IActionResult  Index()
-        {
 
+        public IActionResult Index()
+        {
             return View();
         }
 
         [HttpPost]
         public async Task<IActionResult> Index(Dictionary<string, int> quantities, string action)
         {
-
-            if (action.IndexOf("Checkout") > -1)
-            {
-                return RedirectToAction("Create", "Order");
-            }
+            if (action.IndexOf("Checkout") > -1) return RedirectToAction("Create", "Order");
 
             try
             {
@@ -63,10 +55,9 @@ namespace WebMvc.Controllers
             }
 
             return View();
-
         }
 
-            public async Task<IActionResult> AddToCart(CatalogItem productDetails)
+        public async Task<IActionResult> AddToCart(CatalogItem productDetails)
         {
             try
             {
@@ -84,6 +75,7 @@ namespace WebMvc.Controllers
                     };
                     await _cartService.AddItemToCart(user, product);
                 }
+
                 return RedirectToAction("Index", "Catalog");
             }
             catch (BrokenCircuitException)
@@ -93,7 +85,6 @@ namespace WebMvc.Controllers
             }
 
             return RedirectToAction("Index", "Catalog");
-
         }
         //public async Task WriteOutIdentityInfo()
         //{
@@ -110,8 +101,8 @@ namespace WebMvc.Controllers
 
         private void HandleBrokenCircuitException()
         {
-            TempData["BasketInoperativeMsg"] = "cart Service is inoperative, please try later on. (Business Msg Due to Circuit-Breaker)";
+            TempData["BasketInoperativeMsg"] =
+                "cart Service is inoperative, please try later on. (Business Msg Due to Circuit-Breaker)";
         }
-
     }
 }

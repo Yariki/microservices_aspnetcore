@@ -38,15 +38,18 @@ namespace OrderApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvcCore(
-                options=> options.Filters.Add(typeof(HttpGlobalExceptionFilter))
-                )
-                .AddJsonFormatters(options =>
-                {
-                    options.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-                    options.ContractResolver = new CamelCasePropertyNamesContractResolver();
-                })
-                .AddApiExplorer();
+            //services.AddMvcCore(
+            //        options => options.Filters.Add(typeof(HttpGlobalExceptionFilter))
+            //    )
+            //    .AddAuthorization()
+            //    .AddJsonFormatters(options =>
+            //    {
+            //        options.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+            //        options.ContractResolver = new CamelCasePropertyNamesContractResolver();
+            //    })
+            //    .AddApiExplorer();
+
+            services.AddMvc(options => options.Filters.Add(typeof(HttpGlobalExceptionFilter))).SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Version_2_1); ;
 
             services.Configure<OrderSettings>(Configuration);
 
@@ -119,6 +122,7 @@ namespace OrderApi
 
             context?.Database.Migrate();
             app.UseCors("CorsPolicy");
+            app.UseAuthentication();
 
             app.UseSwagger()
                 .UseSwaggerUI(c =>
@@ -142,12 +146,8 @@ namespace OrderApi
 
             var identityUrl = Configuration.GetValue<string>("IdentityUrl");
 
-            services.AddAuthentication(options =>
-                {
-                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                })
-                .AddJwtBearer(options =>
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
                 {
                     options.Authority = identityUrl;
                     options.RequireHttpsMetadata = false;
