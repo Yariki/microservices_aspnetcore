@@ -3,9 +3,14 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Threading.Tasks;
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
 using CartApi.Infrastructure.Filters;
 using CartApi.Model;
+using Common.Messaging.Consumers;
 using IdentityServer4.AccessTokenValidation;
+using MassTransit;
+using MassTransit.Util;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -15,6 +20,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using RabbitMQ.Client;
 using StackExchange.Redis;
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerUI;
@@ -31,10 +37,12 @@ namespace CartApi
 
         public IConfiguration Configuration { get; }
 
+        private IContainer ApplicationContainer { get; set; }
+
         public IHostingEnvironment HostingEnvironment { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+        public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             services.AddMvc(opt => { opt.Filters.Add(typeof(HttpsGlobalExceptionFilter)); }
                 )
@@ -101,7 +109,7 @@ namespace CartApi
             services.AddCors(options =>
             {
                 options.AddPolicy("CorsPolicy",
-                    builder => builder.AllowAnyOrigin()
+                    b => b.AllowAnyOrigin()
                         .AllowAnyMethod()
                         .AllowAnyHeader()
                         .AllowCredentials());
@@ -109,10 +117,41 @@ namespace CartApi
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddTransient<IRedisRepository, RedisCartRepository>();
 
+
+            var builder = new ContainerBuilder();
+
+            builder.RegisterType<OrderCompletedEventConsumer>();
+
+            builder.Register(c =>
+                {
+                    var busControl = Bus.Factory.CreateUsingRabbitMq(rmq =>
+                    {
+                        var host = rmq.Host(new Uri("rabbitmq://localhost"), "/", h =>
+                        {
+                            h.Username("guest");
+                            h.Password("guest");
+                        });
+
+                        rmq.ReceiveEndpoint(host, "ShoesContainers" + Guid.NewGuid().ToString(),
+                            e => { e.LoadFrom(c); });
+
+                    });
+
+                    return busControl;
+                })
+                .SingleInstance()
+                .As<IBusControl>()
+                .As<IBus>();
+                
+            builder.Populate(services);
+            ApplicationContainer = builder.Build();
+            return new AutofacServiceProvider(ApplicationContainer);
+
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplicationLifetime applicationLifetime)
         {
             if (env.IsDevelopment())
             {
@@ -134,6 +173,11 @@ namespace CartApi
 
 
             app.UseMvcWithDefaultRoute();
+
+            var bus = ApplicationContainer.Resolve<IBusControl>();
+            var busHandle = TaskUtil.Await(() => bus.StartAsync());
+            applicationLifetime.ApplicationStopping.Register(() => busHandle.Stop());
+
 
         }
 

@@ -5,10 +5,15 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
+using MassTransit;
+using MassTransit.Util;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters.Xml;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,6 +24,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using OrderApi.Data;
 using OrderApi.Infrastructure.Filters;
+using RabbitMQ.Client;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace OrderApi
@@ -26,6 +32,8 @@ namespace OrderApi
     public class Startup
     {
         private string _connectionString;
+
+        private IContainer ApplicationContainer { get; set; }
 
         public Startup(IConfiguration configuration)
         {
@@ -36,7 +44,7 @@ namespace OrderApi
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+        public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             //services.AddMvcCore(
             //        options => options.Filters.Add(typeof(HttpGlobalExceptionFilter))
@@ -76,12 +84,12 @@ namespace OrderApi
                                          sqlOptions.MigrationsAssembly(typeof(Startup).GetTypeInfo().Assembly.GetName().Name);
                                          sqlOptions.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
                                      });
-             });
+            });
 
             services.AddSwaggerGen(options =>
             {
                 options.DescribeAllEnumsAsStrings();
-                options.SwaggerDoc("v1",new Info()
+                options.SwaggerDoc("v1", new Info()
                 {
                     Title = "Ordering HTTP API",
                     Version = "v1",
@@ -104,16 +112,39 @@ namespace OrderApi
 
             services.AddCors(options =>
             {
-                options.AddPolicy("CorsPolicy", b => 
+                options.AddPolicy("CorsPolicy", b =>
                     b.AllowAnyOrigin()
                         .AllowAnyMethod()
                         .AllowAnyHeader()
                         .AllowCredentials());
             });
+
+            var builder = new ContainerBuilder();
+            builder.Register(c =>
+                {
+                    return Bus.Factory.CreateUsingRabbitMq(rmq =>
+                    {
+                        rmq.Host(new Uri("rabbitmq://localhost"), "/", h =>
+                        {
+                            h.Username("guest");
+                            h.Password("guest");
+                        });
+                        rmq.ExchangeType = ExchangeType.Fanout;
+                    });
+                })
+                .As<IBusControl>()
+                .As<IBus>()
+                .As<IPublishEndpoint>()
+                .SingleInstance();
+
+            builder.Populate(services);
+            ApplicationContainer = builder.Build();
+            return new AutofacServiceProvider(ApplicationContainer);
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, OrdersContext context)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, OrdersContext context, IApplicationLifetime applicationLifetime)
         {
             if (env.IsDevelopment())
             {
@@ -138,6 +169,10 @@ namespace OrderApi
                     name: "default",
                     template: "{controller}/{action}");
             });
+
+            var bus = ApplicationContainer.Resolve<IBusControl>();
+            var busHandle = TaskUtil.Await(() => bus.StartAsync());
+            applicationLifetime.ApplicationStopping.Register(() => busHandle.Stop());
         }
 
         private void ConfigureAuthService(IServiceCollection services)
@@ -170,7 +205,7 @@ namespace OrderApi
                 }
                 catch (MySqlException)
                 {
-                    Thread.Sleep((int)Math.Pow(2,retries) * 1000);
+                    Thread.Sleep((int)Math.Pow(2, retries) * 1000);
                     retries++;
                 }
             }

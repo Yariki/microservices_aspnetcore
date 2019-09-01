@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Common.Messaging;
+using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -21,12 +23,14 @@ namespace OrderApi.Controllers
         private readonly OrdersContext _orderContext;
         private readonly IOptionsSnapshot<OrderSettings> _settings;
         private readonly ILogger<OrdersController> _logger;
+        private IBus _bus;
 
-        public OrdersController(OrdersContext orderContext, IOptionsSnapshot<OrderSettings> settings, ILogger<OrdersController> logger)
+        public OrdersController(OrdersContext orderContext, IOptionsSnapshot<OrderSettings> settings, ILogger<OrdersController> logger, IBus bus)
         {
             _orderContext = orderContext ?? throw new ArgumentNullException("orderContext");
             _settings = settings;
             _logger = logger;
+            _bus = bus;
             ((DbContext) _orderContext).ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         }
 
@@ -40,10 +44,17 @@ namespace OrderApi.Controllers
             order.OrderDate = DateTime.UtcNow;
             _orderContext.Orders.Add(order);
             _orderContext.OrderItems.AddRange(order.OrderItems);
-
-            await _orderContext.SaveChangesAsync();
-
-            return CreatedAtRoute("GetOrder", new {id = order.OrderId}, order);
+            try
+            {
+                await _orderContext.SaveChangesAsync();
+                _bus.Publish<OrderCompletedEvent>(new {order.BuyerId}).Wait();
+                return CreatedAtRoute("GetOrder", new { id = order.OrderId }, order);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"An error occured: {e.Message}");
+                return BadRequest();
+            }
         }
 
         [HttpGet("{id}", Name = "GetOrder")]

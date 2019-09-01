@@ -1,1 +1,1 @@
-docker-compose -f docker-compose.yml up mssqlserver basketdata
+docker-compose -f docker-compose.yml up mssqlserver basketdata rabbitmq

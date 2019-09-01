@@ -17,6 +17,17 @@ services:
         image: redis
         ports:
             - "6733:6379"
+
+    rabbitmq:
+        image: rabbitmq:3-management
+        container_name: rabbitmq
+        hostname: myrabbitmq
+        ports: 
+            - "15672:15672"
+            - "5672:5672"
+            - "5671:5671"
+        volumes:
+            - ~/rabbitmq:/var/rabbitmq/mnesia
  
     catalog:
         build:
@@ -102,3 +113,4 @@ services:
         depends_on:
             - mssqlserver
             - tokenserver 
+            - rabbitmq

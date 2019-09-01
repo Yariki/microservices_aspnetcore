@@ -23,6 +23,8 @@ namespace OrderApi.Models
 
         public string LastName { get; set; }
 
+        public string BuyerId { get; set; }
+
         public DateTime OrderDate { get; set; }
 
         public string UserName { get; set; }
